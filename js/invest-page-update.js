@@ -15,8 +15,8 @@ function updateInvestmentRange() {
             investmentAmountInput.setAttribute("min", investmentRange.minimumInvestmentAmount);
             investmentAmountInput.setAttribute("max", investmentRange.maximumInvestmentAmount);
 
-            investmentAmountMessage.innerHTML = "Please enter an amount in the range of &#8358;<b>" +
-                investmentRange.minimumInvestmentAmount + "</b> - &#8358;<b>" + investmentRange.maximumInvestmentAmount
+            investmentAmountMessage.innerHTML = "Please enter an amount in the range of <b>&#8358;" +
+                investmentRange.minimumInvestmentAmount + "</b> - <b>&#8358;" + investmentRange.maximumInvestmentAmount
                 + "</b>";
         }
     };
