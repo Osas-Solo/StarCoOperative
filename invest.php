@@ -35,7 +35,7 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                             <div class="form-group mb-4">
                                 <label class="form-label font-weight-bold" for="investment-plan">Investment Plan</label>
                                 <select id="investment-plan" name="investment-plan" class="form-select p-1 d-block"
-                                        placeholder="Investment Plan" required>
+                                        placeholder="Investment Plan" required onchange="updateInvestmentRange()">
                                     <?php
                                     foreach ($investment_plans as $current_investment_plan) {
                                         ?>
@@ -71,7 +71,7 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                                            echo $_POST["investment-amount"];
                                        }
                                        ?>">
-                                <div id="investment-amount-error" class="invalid-feedback">Please enter your last name</div>
+                                <div id="investment-amount-message"></div>
                             </div>
                             <div class="form-group mb-4">
                                 <label class="form-label font-weight-bold" for="payment-month">Payment Month</label>
@@ -102,7 +102,7 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                             <button type="submit" name="proceed" class="btn btn-main text-center">Make Payment</button>
                         </form>
 
-                        <script src="js/signup-validation.js"></script>
+                        <script src="js/invest-page-update.js"></script>
                     </div>
                 </div>
             </div>

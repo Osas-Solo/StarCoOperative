@@ -15,7 +15,7 @@ if (isset($_POST["login"])) {
         <div class="row">
             <div class="col-md-6 mx-auto">
                 <div class="block">
-                    <h2 class="text-center"><?echo $page_title?></h2>
+                    <h2 class="text-center"><?php echo $page_title?></h2>
                     
                     <form class="text-left clearfix mt-50" action="login.php" method="post">
                         <div class="form-group">
