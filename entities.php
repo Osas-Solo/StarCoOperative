@@ -74,10 +74,13 @@ class Member {
     }
 
     function has_investment(): bool {
-        return $this->investment_plan != null;
+        return $this->investment_plan->plan_id != null;
     }
 
-    public static function get_members(mysqli $database_connection) {
+    /**
+     * @return Member[]
+    */
+    public static function get_members(mysqli $database_connection): iterable {
         $members = array();
 
         $query = "SELECT * FROM members m ";
@@ -180,7 +183,10 @@ class Bank {
         }   //  end of if $database_connection is set
     }   //  end of constructor
 
-    public static function get_banks(mysqli $database_connection) {
+    /**
+     * @return Bank[]
+     */
+    public static function get_banks(mysqli $database_connection) : iterable {
         $banks = array();
 
         $query = "SELECT * FROM banks ORDER BY bank_name";
@@ -259,7 +265,10 @@ class InvestmentPlan {
         return "&#8358;" . number_format($this->maximum_loan_entitled, 2);
     }
 
-    public static function get_investment_plans(mysqli $database_connection) {
+    /**
+     * @return InvestmentPlan[]
+     */
+    public static function get_investment_plans(mysqli $database_connection) : iterable {
         $investment_plans = array();
 
         $query = "SELECT * FROM investment_plans ORDER BY plan_id";
@@ -299,14 +308,14 @@ class Investment {
     public $transaction_date;
     public Member $member;
 
-    function __construct(mysqli $database_connection = null, int $investment_id = 0, string $username = "") {
+    function __construct(mysqli $database_connection = null, string $transaction_reference = "", string $username = "") {
         if (isset($database_connection)) {
-            $investment_id = cleanse_data($investment_id, $database_connection);
+            $transaction_reference = cleanse_data($transaction_reference, $database_connection);
             $username = cleanse_data($username, $database_connection);
 
             $query = "SELECT * FROM investments i
                         INNER JOIN members m ON i.user_id = m.user_id
-                        WHERE investment_id = $investment_id";
+                        WHERE transaction_reference = $transaction_reference";
 
             if ($username != "") {
                 $query .= " AND m.username = '$username'";
@@ -348,7 +357,10 @@ class Investment {
         return convert_date_to_readable_form($this->transaction_date);
     }
 
-    public static function get_investments(mysqli $database_connection, string $year = "", string $username) {
+    /**
+     * @return Investment[]
+     */
+    public static function get_investments(mysqli $database_connection, string $year = "", string $username = "") : iterable {
         $investments = array();
 
         $query = "SELECT * FROM investments i
@@ -423,8 +435,9 @@ class Loan {
     public $amount_paid;
     public $status;
     public $monthly_payment_amount;
+    public $amount_left;
 
-    function __construct(mysqli $database_connection = null, int $loan_id = 0) {
+    function __construct(mysqli $database_connection = null, int $loan_id = 0, string $username = "") {
         if (isset($database_connection)) {
             $loan_id = cleanse_data($loan_id, $database_connection);
             
@@ -432,6 +445,10 @@ class Loan {
                         INNER JOIN members m ON l.user_id = m.user_id
                         INNER JOIN investment_plans p ON l.plan_id = p.plan_id
                         WHERE loan_id = $loan_id";
+
+            if ($username != "") {
+                $query .= " AND m.username = '$username'";
+            }
 
             if ($database_connection->connect_error) {
                 die("Connection failed: " . $database_connection->connect_error);
@@ -452,12 +469,23 @@ class Loan {
                 $this->amount_paid = $row["amount_paid"];
                 $this->status = $row["status"];
                 $this->monthly_payment_amount = $row["monthly_payment_amount"];
+                $this->amount_left = $row["amount_left"];
             }   //  end of if number of rows > 0
         }   //  end of if $database_connection is set
     }   //  end of constructor
 
     public function is_found() {
         return $this->loan_id != null;
+    }
+
+    public function calculate_repayment(): float {
+        $repayment = (($this->amount_requested * $this->investment_plan->loan_interest_rate) / 100) + $this->amount_requested;
+
+        return $repayment;
+    }
+
+    public function calculate_monthly_payment_amount(): float {
+        return $this->calculate_repayment() / 12;
     }
 
     public function get_amount_requested() {
@@ -472,6 +500,10 @@ class Loan {
         return "&#8358;" . number_format($this->monthly_payment_amount, 2);
     }
 
+    public function get_amount_left() {
+        return "&#8358;" . number_format($this->amount_left, 2);
+    }
+
     public function get_readable_date_requested() {
         return convert_date_to_readable_form($this->date_requested);
     }
@@ -484,13 +516,21 @@ class Loan {
         return convert_date_to_readable_form($this->expiry_date);
     }
 
-    public static function get_loans(mysqli $database_connection) {
+    /**
+     * @return Loan[]
+     */
+    public static function get_loans(mysqli $database_connection, string $username = "") : iterable {
         $loans = array();
 
         $query = "SELECT * FROM loans l
                         INNER JOIN members m ON l.user_id = m.user_id
-                        INNER JOIN investment_plans p ON l.plan_id = p.plan_id
-                        ORDER BY date_requested DESC";
+                        INNER JOIN investment_plans p ON l.plan_id = p.plan_id";
+
+        if ($username != "") {
+            $query .= " WHERE m.username = '$username'";
+        }
+
+        $query .= " ORDER BY date_requested DESC";
 
         if ($database_connection->connect_error) {
             die("Connection failed: " . $database_connection->connect_error);
@@ -512,6 +552,7 @@ class Loan {
                 $loan->amount_paid = $row["amount_paid"];
                 $loan->status = $row["status"];
                 $loan->monthly_payment_amount = $row["monthly_payment_amount"];
+                $loan->amount_left = $row["amount_left"];
 
                 array_push($loans, $loan);
             }
@@ -520,7 +561,10 @@ class Loan {
         return $loans;
     }   //  end of get_loans()
 
-    public static function filter_loans_by_status(array $loans, string $status) {
+    /**
+     * @return Loan[]
+     */
+    public static function filter_loans_by_status(array $loans, string $status) : iterable {
         $filtered_loans = array();
 
         foreach ($loans as $current_loan) {
@@ -541,13 +585,19 @@ class LoanPayment {
     public $transaction_reference;
     public $transaction_date;
 
-    function __construct(mysqli $database_connection = null, int $loan_payment_id = 0) {
+    function __construct(mysqli $database_connection = null, string $transaction_reference = "", string $username = "") {
         if (isset($database_connection)) {
-            $loan_payment_id = cleanse_data($loan_payment_id, $database_connection);
+            $transaction_reference = cleanse_data($transaction_reference, $database_connection);
+            $username = cleanse_data($username, $database_connection);
 
             $query = "SELECT * FROM loan_payments p
                         INNER JOIN loans l ON p.loan_id = l.loan_id
-                        WHERE loan_payment_id = $loan_payment_id";
+                        INNER JOIN members m ON l.user_id = m.user_id
+                        WHERE transaction_reference = '$transaction_reference'";
+
+            if ($username != "") {
+                $query .= " AND m.username = '$username'";
+            }
 
             if ($database_connection->connect_error) {
                 die("Connection failed: " . $database_connection->connect_error);
@@ -584,12 +634,21 @@ class LoanPayment {
         return convert_date_to_readable_form($this->transaction_date);
     }
 
-    public static function get_loan_payments(mysqli $database_connection) {
+    /**
+     * @return LoanPayment[]
+     */
+    public static function get_loan_payments(mysqli $database_connection, string $username = "") : iterable {
         $loan_payments = array();
 
         $query = "SELECT * FROM loan_payments p
                         INNER JOIN loans l ON p.loan_id = l.loan_id
-                        ORDER BY date_paid";
+                        INNER JOIN members m ON l.user_id = m.user_id";
+
+        if ($username != "") {
+            $query .= " WHERE m.username = '$username'";
+        }
+
+        $query .= " ORDER BY date_paid";
 
         if ($database_connection->connect_error) {
             die("Connection failed: " . $database_connection->connect_error);
@@ -616,7 +675,7 @@ class LoanPayment {
     }   //  end of get_loan_payments()
 }   //  end of LoanPayment class
 
-function cleanse_data($data, $database_connection) {
+function cleanse_data($data, $database_connection): string {
     $data = trim($data);
     $data = stripslashes($data);
     $data = htmlspecialchars($data);
@@ -691,5 +750,36 @@ function is_username_in_use(mysqli $database_connection): bool {
     }
 
     return $is_username_in_use;   //  end of if username is null
+}
+
+function get_available_investment_months(int $last_investment_month): array {
+    $months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+        "November", "December"];
+
+    $available_investment_months = array();
+
+    if ($last_investment_month >= 12) {
+        return $months;
+    } else {
+        for ($i = $last_investment_month; $i < 12; $i++) {
+            array_push($available_investment_months, $months[$i]);
+        }
+    }
+
+    return $available_investment_months;
+}
+
+function get_month_number(string $month): int {
+    $months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+        "November", "December"];
+
+    return array_search($month, $months) + 1;
+}
+
+function get_month(int $month_number): string {
+    $months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
+        "November", "December"];
+
+    return $months[$month_number - 1];
 }
 ?>

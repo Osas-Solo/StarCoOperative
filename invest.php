@@ -63,9 +63,9 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                                 </select>
                             </div>
                             <div class="form-group mb-4">
-                                <label class="form-label font-weight-bold" for="investment-amount">Investment Amount</label>
+                                <label class="form-label font-weight-bold" for="investment-amount">Investment Amount (&#8358;)</label>
                                 <input id="investment-amount" name="investment-amount" type="number" class="form-control"
-                                       placeholder="Investment Amount" required
+                                       placeholder="Investment Amount" required step="0.01"
                                        value="<?php
                                        if (isset($_POST["investment-amount"])) {
                                            echo $_POST["investment-amount"];
@@ -78,25 +78,30 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                                 <select id="payment-month" name="payment-month" class="form-select p-1 d-block"
                                         required>
                                     <?php
-                                    $available_investment_months = get_available_investment_months($last_investment_month);
-                                    $month_number = get_month_number($available_investment_months[0]);
-
-                                    foreach ($available_investment_months as $current_available_investment_month) {
-                                     ?>
-                                        <option value="<?php echo $month_number?>"
+                                    if (!$member->has_investment()) {
+                                        $available_investment_month_number = date("m");
+                                        $available_investment_month = get_month($available_investment_month_number);
+                                    } else {
+                                        $available_investment_month_number = ($last_investment_month == 12) ? 1 :
+                                            $last_investment_month + 1;
+                                        $available_investment_month = get_month($available_investment_month_number);
+                                    }
+                                    ?>
+                                        <option value="<?php echo $available_investment_month?>"
                                             <?php
                                             if (isset($_POST["payment-month"])) {
-                                                if ($current_available_investment_month == $_POST["payment-month"]) {
+                                                if ($available_investment_month == $_POST["payment-month"]) {
                                                     echo "selected";
                                                 }
                                             }?>>
-                                            <?php echo $current_available_investment_month?>
+                                            <?php echo $available_investment_month?>
                                         </option>
-                                    <?php
-                                        $month_number++;
-                                    }
-                                    ?>
                                 </select>
+                                <div id="investment-month-message">
+                                    You can only make a monthly investment for a month following the last month you
+                                    invested at unless you are a first investor where you would have to place an
+                                    investment on this current month
+                                </div>
                             </div>
 
                             <button type="submit" name="proceed" class="btn btn-main text-center">Make Payment</button>
@@ -110,30 +115,6 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
     </section>
 
 <?php
-function get_available_investment_months(int $last_investment_month): array {
-    $months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-        "November", "December"];
-
-    $available_investment_months = array();
-
-    if ($last_investment_month >= 12) {
-        return $months;
-    } else {
-        for ($i = $last_investment_month; $i < 12; $i++) {
-            array_push($available_investment_months, $months[$i]);
-        }
-    }
-
-    return $available_investment_months;
-}
-
-function get_month_number(string $month): int {
-    $months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October",
-        "November", "December"];
-
-    return array_search($month, $months) + 1;
-}
-
 $database_connection->close();
 require_once "footer.php";
 ?>

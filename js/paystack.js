@@ -1,5 +1,7 @@
 let transactionReference = document.getElementById("transaction-reference");
 const paymentForm = document.getElementById("payment-form");
+const paymentButton = document.getElementById("payment-button");
+
 const emailAddress = document.getElementById("email-address").value;
 const transactionAmount = document.getElementById("transaction-amount").value;
 
@@ -18,7 +20,7 @@ function payWithPaystack(e) {
         },
 
         callback: function(response) {
-            //paymentForm.removeEventListener("submit", payWithPaystack, false);
+            paymentForm.removeEventListener("submit", payWithPaystack, false);
             transactionReference.value = response.reference;
             completeTransaction();
         }   //  end of callback
@@ -28,15 +30,9 @@ function payWithPaystack(e) {
 }   //  end of payWithPaystack()
 
 function completeTransaction() {
-    const paymentButton = document.getElementById("payment-button");
     paymentButton.removeAttribute("onclick");
 
     paymentForm.setAttribute("action", "");
     paymentForm.setAttribute("method", "POST");
     paymentButton.click();
-}
-
-function removePaymentFormAttributes() {
-    paymentForm.removeAttribute("action");
-    paymentForm.removeAttribute("method");
 }
