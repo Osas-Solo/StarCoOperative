@@ -82,13 +82,15 @@ function complete_investment(Member $member, mysqli $database_connection) {
     $insert_query = "INSERT INTO investments (transaction_reference, plan_id, investment_amount, payment_date, 
                          transaction_date, user_id) VALUE 
                          ('$transaction_reference', $investment_plan_id, $investment_amount, '$payment_date', 
-                          '$transaction_date', $member->user_id)";
+                          '$transaction_date', $member->user_id);";
+
+    $update_member_query = " UPDATE members SET plan_id = $investment_plan_id WHERE username = '$member->username';";
 
     if ($database_connection->connect_error) {
         die("Connection failed: " . $database_connection->connect_error);
     }
 
-    if ($database_connection->query($insert_query)) {
+    if ($database_connection->multi_query($insert_query . $update_member_query)) {
         $alert = "<script>
                     if (confirm('Investment made successfully')) {";
         $investment_url = "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]) . "/view-investment.php?transaction-reference=" . $transaction_reference;

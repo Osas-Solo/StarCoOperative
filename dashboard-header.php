@@ -17,7 +17,7 @@ if (isset($_SESSION["username"])) {
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
-<html lang="zxx"> <!--<![endif]-->
+<html lang="en"> <!--<![endif]-->
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
@@ -51,7 +51,7 @@ Fixed Navigation
             <div class="col-md-12">
                 <nav class="navbar navbar-expand-lg">
                     <a class="navbar-brand" href="index.php">
-                        Star Co-operative
+                        <h1>Star Co-operative</h1>
                     </a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="tf-ion-android-menu"></span>

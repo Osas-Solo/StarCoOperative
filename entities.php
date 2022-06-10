@@ -350,7 +350,7 @@ class Investment {
     }
 
     public function get_readable_payment_date() {
-        return convert_date_to_readable_form($this->payment_date);
+        return convert_date_to_month_period($this->payment_date);
     }
 
     public function get_readable_transaction_date() {
@@ -403,6 +403,41 @@ class Investment {
         return $investments;
     }   //  end of get_investments()
 
+    /**
+     * @param Investment[] $investments
+     * @return InvestmentPlan
+     */
+    public static function getMostMadeInvestmentPlan(mysqli $database_connection, array $investments): InvestmentPlan {
+        $investment_plans_count = ["bronze" => 0, "silver" => 0, "gold" => 0];
+
+        foreach ($investments as $current_investment) {
+            switch ($current_investment->investment_plan->plan_id) {
+                case 1:
+                    $investment_plans_count["bronze"]++;
+                    break;
+                case 2:
+                    $investment_plans_count["silver"]++;
+                    break;
+                case 3:
+                    $investment_plans_count["gold"]++;
+                    break;
+            }
+        }
+
+        if (($investment_plans_count["gold"] >= $investment_plans_count["silver"]) &&
+            ($investment_plans_count["gold"] >= $investment_plans_count["bronze"])) {
+            return new InvestmentPlan($database_connection, 3);
+        } else if (($investment_plans_count["silver"] >= $investment_plans_count["gold"]) &&
+            ($investment_plans_count["silver"] >= $investment_plans_count["bronze"])) {
+            return new InvestmentPlan($database_connection, 2);
+        } else if (($investment_plans_count["bronze"] >= $investment_plans_count["gold"]) &&
+            ($investment_plans_count["bronze"] >= $investment_plans_count["silver"])) {
+            return new InvestmentPlan($database_connection, 1);
+        }
+
+        return new InvestmentPlan();
+    }
+
     public static function get_total_investment_amount(array $investments) {
         return "&#8358;" . number_format(self::calculate_total_investment_amount($investments), 2);
     }
@@ -419,7 +454,13 @@ class Investment {
         } else {
             $investment_date = $investments[0]->payment_date;
 
-            return intval(substr($investment_date, 2));
+            $date_regex = "/(\d{4})-(\d{2})-(\d{2})/";
+
+            preg_match($date_regex, $investment_date, $match_groups);
+
+            $month = $match_groups[2];
+
+            return intval($month);
         }
     }
 }   //  end of Investment class
@@ -530,7 +571,7 @@ class Loan {
             $query .= " WHERE m.username = '$username'";
         }
 
-        $query .= " ORDER BY date_requested DESC";
+        $query .= " ORDER BY status DESC, date_requested DESC";
 
         if ($database_connection->connect_error) {
             die("Connection failed: " . $database_connection->connect_error);
@@ -540,7 +581,7 @@ class Loan {
 
         if ($query_result->num_rows > 0) {
             while ($row = $query_result->fetch_assoc()) {
-                $loan = new Investment();
+                $loan = new Loan();
 
                 $loan->loan_id = $row["loan_id"];
                 $loan->member = new Member($database_connection, $row["username"]);
@@ -728,17 +769,27 @@ function convert_date_to_readable_form(string $reverse_date) {
     $month = $match_groups[2];
     $day = $match_groups[3];
 
-    $month_names = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
-
-    $month = $month_names[$month - 1];
+    $month = get_month($month - 1);
 
     return $month . " " . $day . ", " . $year;
 }
 
+function convert_date_to_month_period(string $reverse_date) {
+    $reverse_date_regex = "/(\d{4})-(\d{2})-(\d{2})/";
+
+    preg_match($reverse_date_regex, $reverse_date, $match_groups);
+
+    $year = $match_groups[1];
+    $month = $match_groups[2];
+
+    $month = get_month($month - 1);
+
+    return "$month $year";
+}
+
 /**
  * @param mysqli $database_connection
- * @return int
+ * @return bool
  */
 function is_username_in_use(mysqli $database_connection): bool {
     $is_username_in_use = false;

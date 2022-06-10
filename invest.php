@@ -20,7 +20,7 @@ if (isset($_GET["investment-plan"])) {
 $year = date("Y");
 
 $investments = Investment::get_investments($database_connection, $year, $username);
-$last_investment_month = Investment::get_recent_investment_month($investments);
+$last_investment_month_number = Investment::get_recent_investment_month($investments);
 
 $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
 ?>
@@ -82,8 +82,8 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                                         $available_investment_month_number = date("m");
                                         $available_investment_month = get_month($available_investment_month_number);
                                     } else {
-                                        $available_investment_month_number = ($last_investment_month == 12) ? 1 :
-                                            $last_investment_month + 1;
+                                        $available_investment_month_number = ($last_investment_month_number == 12) ? 1 :
+                                            $last_investment_month_number + 1;
                                         $available_investment_month = get_month($available_investment_month_number);
                                     }
                                     ?>
