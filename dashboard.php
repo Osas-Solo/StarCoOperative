@@ -79,7 +79,8 @@ $loans = Loan::get_loans($database_connection, $member->username);
                             </thead>
                             <tbody>
                             <?php
-                            for ($i = 0; $i < 5; $i++) {
+                            $number_of_investments = min(5, count($investments));
+                            for ($i = 0; $i < $number_of_investments; $i++) {
                                 ?>
                                 <tr>
                                     <td class="p-2">
@@ -123,7 +124,8 @@ $loans = Loan::get_loans($database_connection, $member->username);
                             </thead>
                             <tbody>
                             <?php
-                            for ($i = 0; $i < 5; $i++) {
+                            $number_of_loans = min(5, count($loans));
+                            for ($i = 0; $i < $number_of_loans; $i++) {
                                 ?>
                                 <tr>
                                     <td class="p-2">

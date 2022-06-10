@@ -313,7 +313,8 @@ class Investment {
             $transaction_reference = cleanse_data($transaction_reference, $database_connection);
             $username = cleanse_data($username, $database_connection);
 
-            $query = "SELECT * FROM investments i
+            $query = "SELECT investment_id, transaction_reference, i.plan_id, investment_amount, payment_date, 
+                        transaction_date, username FROM investments i
                         INNER JOIN members m ON i.user_id = m.user_id
                         WHERE transaction_reference = '$transaction_reference'";
 
@@ -363,7 +364,8 @@ class Investment {
     public static function get_investments(mysqli $database_connection, string $year = "", string $username = "") : iterable {
         $investments = array();
 
-        $query = "SELECT * FROM investments i
+        $query = "SELECT investment_id, transaction_reference, i.plan_id, investment_amount, payment_date, 
+                        transaction_date, username FROM investments i
                         INNER JOIN members m ON i.user_id = m.user_id";
 
         if ($year != "") {
@@ -394,7 +396,7 @@ class Investment {
                 $investment->investment_amount = $row["investment_amount"];
                 $investment->payment_date = $row["payment_date"];
                 $investment->transaction_date = $row["transaction_date"];
-                $investment->member = new Member($database_connection, $row["user_id"]);
+                $investment->member = new Member($database_connection, $row["username"]);
 
                 array_push($investments, $investment);
             }
@@ -531,6 +533,10 @@ class Loan {
         return $this->status == "Approved";
     }
 
+    public function is_rejected() {
+        return $this->status == "Rejected";
+    }
+
     public function get_amount_requested() {
         return "&#8358;" . number_format($this->amount_requested, 2);
     }
@@ -591,7 +597,7 @@ class Loan {
             $query .= " WHERE m.username = '$username'";
         }
 
-        $query .= " ORDER BY status ASC, date_requested DESC";
+        $query .= " ORDER BY status ASC, loan_id DESC";
 
         if ($database_connection->connect_error) {
             die("Connection failed: " . $database_connection->connect_error);
