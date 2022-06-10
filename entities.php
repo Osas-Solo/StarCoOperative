@@ -648,7 +648,6 @@ class LoanPayment {
     public $loan_payment_id;
     public Loan $loan;
     public $amount_paid;
-    public $date_paid;
     public $transaction_reference;
     public $transaction_date;
 
@@ -678,7 +677,6 @@ class LoanPayment {
                 $this->loan_payment_id = $row["loan_payment_id"];
                 $this->loan = new Loan($database_connection, $row["loan_id"]);
                 $this->amount_paid = $row["amount_paid"];
-                $this->date_paid = $row["date_paid"];
                 $this->transaction_reference = $row["transaction_reference"];
                 $this->transaction_date = $row["transaction_date"];
             }   //  end of if number of rows > 0
@@ -730,7 +728,6 @@ class LoanPayment {
                 $loan_payment->loan_payment_id = $row["loan_payment_id"];
                 $loan_payment->loan = new Loan($database_connection, $row["loan_id"]);
                 $loan_payment->amount_paid = $row["amount_paid"];
-                $loan_payment->date_paid = $row["date_paid"];
                 $loan_payment->transaction_reference = $row["transaction_reference"];
                 $loan_payment->transaction_date = $row["transaction_date"];
 

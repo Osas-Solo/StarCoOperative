@@ -64,7 +64,6 @@ $payment_date = date("Y") . "-" . get_month_number($_POST["payment-month"]) . "-
 
                         <script src = "https://js.paystack.co/v1/inline.js"></script>
                         <script src="js/paystack.js"></script>
-
                     </div>
                 </div>
             </div>
