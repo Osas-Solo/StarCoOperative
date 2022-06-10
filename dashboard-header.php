@@ -45,7 +45,7 @@ if (isset($_SESSION["username"])) {
 <!--
 Fixed Navigation
 ==================================== -->
-<section class="header  navigation">
+<section class="header  navigation sticky-top">
     <div class="container">
         <div class="row">
             <div class="col-md-12">

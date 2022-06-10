@@ -476,7 +476,7 @@ class Loan {
     public $amount_paid;
     public $status;
     public $monthly_payment_amount;
-    public $amount_left;
+    public $repayment_amount;
 
     function __construct(mysqli $database_connection = null, int $loan_id = 0, string $username = "") {
         if (isset($database_connection)) {
@@ -510,23 +510,13 @@ class Loan {
                 $this->amount_paid = $row["amount_paid"];
                 $this->status = $row["status"];
                 $this->monthly_payment_amount = $row["monthly_payment_amount"];
-                $this->amount_left = $row["amount_left"];
+                $this->repayment_amount = $row["repayment_amount"];
             }   //  end of if number of rows > 0
         }   //  end of if $database_connection is set
     }   //  end of constructor
 
     public function is_found() {
         return $this->loan_id != null;
-    }
-
-    public function calculate_repayment(): float {
-        $repayment = (($this->amount_requested * $this->investment_plan->loan_interest_rate) / 100) + $this->amount_requested;
-
-        return $repayment;
-    }
-
-    public function calculate_monthly_payment_amount(): float {
-        return $this->calculate_repayment() / 12;
     }
 
     public function get_amount_requested() {
@@ -541,8 +531,16 @@ class Loan {
         return "&#8358;" . number_format($this->monthly_payment_amount, 2);
     }
 
-    public function get_amount_left() {
-        return "&#8358;" . number_format($this->amount_left, 2);
+    public function get_repayment_amount() {
+        return "&#8358;" . number_format($this->repayment_amount, 2);
+    }
+
+    public function calculate_payment_left() {
+        return $this->repayment_amount - $this->amount_paid;
+    }
+
+    public function get_payment_left() {
+        return "&#8358;" . number_format($this->calculate_payment_left(), 2);
     }
 
     public function get_readable_date_requested() {
@@ -555,6 +553,16 @@ class Loan {
 
     public function get_readable_expiry_date() {
         return convert_date_to_readable_form($this->expiry_date);
+    }
+
+    public static function calculate_repayment(float $amount_requested, InvestmentPlan $investment_plan): float {
+        $repayment = (($amount_requested * $investment_plan->loan_interest_rate) / 100) + $amount_requested;
+
+        return $repayment;
+    }
+
+    public static function calculate_monthly_payment_amount(float $repayment_amount): float {
+        return $repayment_amount / 12;
     }
 
     /**
@@ -593,7 +601,7 @@ class Loan {
                 $loan->amount_paid = $row["amount_paid"];
                 $loan->status = $row["status"];
                 $loan->monthly_payment_amount = $row["monthly_payment_amount"];
-                $loan->amount_left = $row["amount_left"];
+                $loan->repayment_amount = $row["repayment_amount"];
 
                 array_push($loans, $loan);
             }
