@@ -75,17 +75,22 @@ if (isset($_GET["loan-id"])) {
                                     <th class="p-2">Status</th>
                                     <td class="p-2"><?php echo $loan->status?></td>
                                 </tr>
-                                <?php
-                                if ($loan->is_approved()) {
-                                ?>
-                                <tr>
-                                    <th colspan="2"><a href="repay-loan.php">Repay Loan</a></th>
-                                </tr>
-                                <?php
-                                }
-                                ?>
                                 </tbody>
                             </table>
+
+                            <?php
+                            if ($loan->is_approved()) {
+                                ?>
+                                <div class="col-12">
+                                    <form action="loan-repayment.php" method="post">
+                                        <input type="number" name="loan-id" class="d-none" value="<?php echo $loan->loan_id?>">
+                                        <button type="submit" class="btn btn-main mx-auto d-block">Repay Loan</button>
+                                    </form>
+                                </div>
+                                <?php
+                            }
+                            ?>
+
                             <?php
                         } else {
                             ?>
