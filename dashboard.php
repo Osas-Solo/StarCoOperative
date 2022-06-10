@@ -39,6 +39,10 @@ $loans = Loan::get_loans($database_connection, $member->username);
                                 <td class="p-2"><?php echo $member->bank->bank_name?></td>
                             </tr>
                             <tr>
+                                <th class="p-2">Bank Account Number</th>
+                                <td class="p-2"><?php echo $member->bank_account_number?></td>
+                            </tr>
+                            <tr>
                                 <th class="p-2">Investment Plan</th>
                                 <td class="p-2">
                                     <?php
@@ -75,19 +79,19 @@ $loans = Loan::get_loans($database_connection, $member->username);
                             </thead>
                             <tbody>
                             <?php
-                            foreach ($investments as $current_investment) {
+                            for ($i = 0; $i < 5; $i++) {
                                 ?>
                                 <tr>
                                     <td class="p-2">
-                                        <a href="view-investment.php?transaction-reference=<?php echo $current_investment->transaction_reference?>">
-                                            <?php echo $current_investment->transaction_reference?>
+                                        <a href="view-investment.php?transaction-reference=<?php echo $investments[$i]->transaction_reference?>">
+                                            <?php echo $investments[$i]->transaction_reference?>
                                         </a>
                                     </td>
                                     <td class="p-2">
-                                        <?php echo $current_investment->get_readable_payment_date()?>
+                                        <?php echo $investments[$i]->get_readable_payment_date()?>
                                     </td>
                                     <td class="p-2">
-                                        <?php echo $current_investment->get_investment_amount()?>
+                                        <?php echo $investments[$i]->get_investment_amount()?>
                                     </td>
                                 </tr>
                                 <?php
@@ -119,19 +123,19 @@ $loans = Loan::get_loans($database_connection, $member->username);
                             </thead>
                             <tbody>
                             <?php
-                            foreach ($loans as $current_loan) {
+                            for ($i = 0; $i < 5; $i++) {
                                 ?>
                                 <tr>
                                     <td class="p-2">
-                                        <a href="view-loan.php?loan-id=<?php echo $current_loan->loan_id?>">
-                                            <?php echo $current_loan->get_amount_requested()?>
+                                        <a href="view-loan.php?loan-id=<?php echo $loans[$i]->loan_id?>">
+                                            <?php echo $loans[$i]->get_amount_requested()?>
                                         </a>
                                     </td>
                                     <td class="p-2">
-                                        <?php echo $current_loan->get_readable_date_requested()?>
+                                        <?php echo $loans[$i]->get_readable_date_requested()?>
                                     </td>
                                     <td class="p-2">
-                                        <?php echo $current_loan->status?>
+                                        <?php echo $loans[$i]->status?>
                                     </td>
                                 </tr>
                                 <?php

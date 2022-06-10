@@ -315,7 +315,7 @@ class Investment {
 
             $query = "SELECT * FROM investments i
                         INNER JOIN members m ON i.user_id = m.user_id
-                        WHERE transaction_reference = $transaction_reference";
+                        WHERE transaction_reference = '$transaction_reference'";
 
             if ($username != "") {
                 $query .= " AND m.username = '$username'";
@@ -519,6 +519,18 @@ class Loan {
         return $this->loan_id != null;
     }
 
+    public function is_pending() {
+        return $this->status == "Pending";
+    }
+
+    public function is_paid() {
+        return $this->status == "Paid";
+    }
+
+    public function is_approved() {
+        return $this->status == "Approved";
+    }
+
     public function get_amount_requested() {
         return "&#8358;" . number_format($this->amount_requested, 2);
     }
@@ -579,7 +591,7 @@ class Loan {
             $query .= " WHERE m.username = '$username'";
         }
 
-        $query .= " ORDER BY status DESC, date_requested DESC";
+        $query .= " ORDER BY status ASC, date_requested DESC";
 
         if ($database_connection->connect_error) {
             die("Connection failed: " . $database_connection->connect_error);
@@ -790,7 +802,7 @@ function convert_date_to_month_period(string $reverse_date) {
     $year = $match_groups[1];
     $month = $match_groups[2];
 
-    $month = get_month($month - 1);
+    $month = get_month($month);
 
     return "$month $year";
 }
