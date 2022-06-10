@@ -88,6 +88,12 @@ if (isset($_GET["loan-id"])) {
                                     </form>
                                 </div>
                                 <?php
+                            } else if ($loan->is_paid()) {
+                            ?>
+                                <div class="col-12 text-center mb-5">
+                                    <h3><a href="loan-application.php">Apply for a Loan</a></h3>
+                                </div>
+                            <?php
                             }
                             ?>
 
