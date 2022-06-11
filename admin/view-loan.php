@@ -9,7 +9,13 @@ $loan = new Loan();
 if (isset($_GET["loan-id"])) {
     $loan_id = $_GET["loan-id"];
 
-    $loan = new Loan($database_connection, $loan_id, $member->username);
+    $loan = new Loan($database_connection, $loan_id);
+}
+
+if (isset($_POST["approve"])) {
+    update_loan_status($database_connection, $loan, true);
+} else if (isset($_POST["reject"])) {
+    update_loan_status($database_connection, $loan, false);
 }
 
 if ($loan->is_approved() || $loan->is_paid()) {
@@ -93,24 +99,22 @@ if ($loan->is_approved() || $loan->is_paid()) {
                             </table>
 
                             <?php
-                            if ($loan->is_approved()) {
+                            if ($loan->is_pending()) {
                                 ?>
-                                <div class="col-12">
-                                    <form action="loan-repayment.php" method="post">
+                                <div class="col-12 text-center">
+                                    <form method="post">
                                         <input type="number" name="loan-id" class="d-none" value="<?php echo $loan->loan_id?>">
-                                        <button type="submit" class="btn btn-main mx-auto d-block">Repay Loan</button>
+                                        <button type="submit" name="reject" class="btn btn-danger mr-5">
+                                            Reject
+                                        </button>
+                                        <button type="submit" name="approve" class="btn btn-success ml-5">
+                                            Approve
+                                        </button>
                                     </form>
                                 </div>
                                 <?php
-                            } else if ($loan->is_paid() || $loan->is_rejected()) {
-                            ?>
-                                <div class="col-12 text-center mb-5">
-                                    <h3><a href="loan-application.php">Apply for a Loan</a></h3>
-                                </div>
-                            <?php
                             }
                             ?>
-
                             <?php
                         } else {
                             ?>
@@ -171,6 +175,62 @@ if ($loan->is_approved() || $loan->is_paid()) {
     </section>
 
 <?php
+function update_loan_status(mysqli $database_connection, Loan $loan, bool $is_approved) {
+    $status = $is_approved ? "Approved" : "Rejected";
+
+    $update_query = "UPDATE loans SET status = '$status'";
+
+    if ($is_approved) {
+        $date_approved = date("Y-m-d");
+        $expiry_date = set_expiry_date($date_approved);
+        $amount_paid = 0;
+
+        $update_query .= ", date_approved = '$date_approved', expiry_date = '$expiry_date', amount_paid = $amount_paid";
+    }
+
+    $update_query .= " WHERE loan_id = $loan->loan_id";
+
+    if ($database_connection->connect_error) {
+        die("Connection failed: " . $database_connection->connect_error);
+    }
+
+    if ($database_connection->query($update_query)) {
+        $alert = "<script>
+                    if (confirm('Loan $status successfully.')) {";
+        $loan_url = "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]) . "/view-loan.php?";
+        $loan_url .= "loan-id=$loan->loan_id";
+        $alert .=           "window.location.replace('$loan_url');
+                    } else {";
+        $alert .=           "window.location.replace('$loan_url');
+                    }";
+        $alert .= "</script>";
+
+        echo $alert;
+    }
+}
+
+function set_expiry_date(string $approval_date): string{
+    $reverse_date_regex = "/(\d{4})-(\d{2})-(\d{2})/";
+
+    preg_match($reverse_date_regex, $approval_date, $match_groups);
+
+    $year = $match_groups[1];
+    $month = $match_groups[2];
+
+    $year++;
+
+    if ($month == 12) {
+        $month = "1";
+        $year++;
+    } else {
+        $month++;
+    }
+
+    $day = "1";
+
+    return "$year-$month-$day";
+}
+
 $database_connection->close();
 require_once "footer.php";
 ?>

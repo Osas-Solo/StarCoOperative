@@ -699,7 +699,7 @@ class LoanPayment {
     /**
      * @return LoanPayment[]
      */
-    public static function get_loan_payments(mysqli $database_connection, string $username = "") : iterable {
+    public static function get_loan_payments(mysqli $database_connection, int $loan_id = 0) : iterable {
         $loan_payments = array();
 
         $query = "SELECT loan_payment_id, p.loan_id, p.amount_paid, transaction_reference, transaction_date 
@@ -707,8 +707,8 @@ class LoanPayment {
                         INNER JOIN loans l ON p.loan_id = l.loan_id
                         INNER JOIN members m ON l.user_id = m.user_id";
 
-        if ($username != "") {
-            $query .= " WHERE m.username = '$username'";
+        if ($loan_id != 0) {
+            $query .= " WHERE p.loan_id = $loan_id";
         }
 
         $query .= " ORDER BY loan_payment_id DESC";

@@ -10,7 +10,7 @@ if (isset($_POST["login"])) {
 }
 ?>
 
-<section class="signin-page account">
+<section class="signin-page account p-5">
     <div class="container">
         <div class="row">
             <div class="col-md-6 mx-auto">

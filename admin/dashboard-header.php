@@ -1,3 +1,19 @@
+<?php
+require_once "../entities.php";
+
+session_start();
+
+if ($page_title != "Admin Login") {
+    if (isset($_SESSION["admin"])) {
+        $username = $_SESSION["admin"];
+        $admin = new Admin($database_connection, $username);
+    } else {
+        $login_url = "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]) . "/index.php";
+        header("Location: " . $login_url);
+    }
+
+}?>
+
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -15,14 +31,14 @@
     <!-- CSS
     ================================================== -->
     <!-- Themefisher Icon font -->
-    <link rel="stylesheet" href="plugins/themefisher-font.v-2/style.css">
+    <link rel="stylesheet" href="../plugins/themefisher-font.v-2/style.css">
     <!-- bootstrap.min css -->
-    <link rel="stylesheet" href="plugins/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../plugins/bootstrap/dist/css/bootstrap.min.css">
     <!-- Slick Carousel -->
-    <link rel="stylesheet" href="plugins/slick-carousel/slick/slick.css">
-    <link rel="stylesheet" href="plugins/slick-carousel/slick/slick-theme.css">
+    <link rel="stylesheet" href="../plugins/slick-carousel/slick/slick.css">
+    <link rel="stylesheet" href="../plugins/slick-carousel/slick/slick-theme.css">
     <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
 
 </head>
 
@@ -44,35 +60,24 @@ Fixed Navigation
                     </button>
                     <div class="collapse navbar-collapse" id="navbarSupportedContent">
                         <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.php">Home</a>
+                            </li>
                             <li class="nav-item active">
-                                <a class="nav-link" href="index.php">Home <span class="sr-only">(current)</span></a>
+                                <a class="nav-link" href="dashboard.php">Dashboard <span class="sr-only">(current)</span></a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="investment-plans.php">Investment Plans</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="contact.php">Contact</a>
+                                <a class="nav-link" href="investments.php">Investments</a>
                             </li>
-                            <?php
-                            session_start();
-
-                            if (isset($_SESSION["username"])) {
-                            ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="dashboard.php">Dashboard</a>
+                                <a class="nav-link" href="loans.php">Loans</a>
                             </li>
-                            <?php
-                            } else {
-                            ?>
                             <li class="nav-item">
-                                <a class="nav-link" href="login.php">Login</a>
+                                <a class="nav-link" href="logout.php">Logout</a>
                             </li>
-                             <li class="nav-item">
-                                 <a class="nav-link" href="signup.php">Sign Up</a>
-                             </li>
-                            <?php
-                            }
-                            ?>
                         </ul>
                     </div>
                 </nav>
