@@ -45,11 +45,11 @@ if ($member->has_investment()) {
                                        placeholder="Amount Requested" required step="0.01"
                                        min="<?php echo $investment_plan->minimum_loan_entitled?>"
                                        max="<?php echo $investment_plan-> maximum_loan_entitled?>">
-                                <div>
+                                <div class="mt-3">
                                     Note that you can only make a request in the range of
                                     <?php echo $investment_plan->get_minimum_loan_entitled()?> -
-                                    <?php echo $investment_plan-> maximum_loan_entitled?> based on the amount range you
-                                    have invested the most
+                                    <?php echo $investment_plan->get_maximum_loan_entitled()?> based on the amount range you
+                                    have invested the most which is the <?php echo $investment_plan->plan_name?>
                                 </div>
                             </div>
 

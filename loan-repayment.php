@@ -93,7 +93,7 @@ function repay_loan(Member $member, mysqli $database_connection) {
         die("Connection failed: " . $database_connection->connect_error);
     }
 
-    if ($database_connection->query($insert_query . $update_query)) {
+    if ($database_connection->multi_query($insert_query . $update_query)) {
         $alert = "<script>
                     if (confirm('Loan repayment made successfully')) {";
         $loan_url = "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]) . "/view-loan.php?loan-id=" . $loan->loan_id;
