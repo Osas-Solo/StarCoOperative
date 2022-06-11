@@ -49,7 +49,9 @@ if ($member->has_investment()) {
                                     Note that you can only make a request in the range of
                                     <?php echo $investment_plan->get_minimum_loan_entitled()?> -
                                     <?php echo $investment_plan->get_maximum_loan_entitled()?> based on the amount range you
-                                    have invested the most which is the <?php echo $investment_plan->plan_name?>
+                                    have invested the most which is the <?php echo $investment_plan->plan_name?>. <br>
+                                    The interest rate is set at <?php echo $investment_plan->loan_interest_rate?>% per
+                                    annum.
                                 </div>
                             </div>
 

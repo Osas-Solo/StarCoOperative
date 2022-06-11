@@ -11,6 +11,10 @@ if (isset($_GET["loan-id"])) {
 
     $loan = new Loan($database_connection, $loan_id, $member->username);
 }
+
+if ($loan->is_approved() || $loan->is_paid()) {
+    $loan_repayments = LoanPayment::get_loan_payments($database_connection, $member->username);
+}
 ?>
 
     <section class="mt-5 mb-5">
@@ -73,7 +77,17 @@ if (isset($_GET["loan-id"])) {
                                 ?>
                                 <tr>
                                     <th class="p-2">Status</th>
-                                    <td class="p-2"><?php echo $loan->status?></td>
+                                    <td class="p-2 <?php if ($loan->is_rejected()) {
+                                        echo 'text-danger';
+                                    } else if ($loan->is_approved()) {
+                                        echo 'text-success';
+                                    } else if ($loan->is_pending()) {
+                                        echo 'text-warning';
+                                    } else if ($loan->is_paid()) {
+                                        echo 'text-primary';
+                                    }?>">
+                                        <?php echo $loan->status?>
+                                    </td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -108,6 +122,49 @@ if (isset($_GET["loan-id"])) {
                         ?>
                     </div>
                 </div>
+
+                <?php
+                if ($loan->is_approved() || $loan->is_paid()) {
+                ?>
+                <div class="col-md-9 mx-auto mt-5">
+                    <div class="block text-center">
+                        <h2 class="text-center">Loan Repayments</h2>
+                    </div>
+
+                    <div class="col-12">
+                        <table class="table table-striped table-hover table-sm text-center mb-5">
+                            <thead>
+                            <tr>
+                                <th>Transaction Reference</th>
+                                <th>Amount Paid</th>
+                                <th>Transaction Date</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php
+                            foreach ($loan_repayments as $current_loan_repayment) {
+                                ?>
+                                <tr>
+                                    <td class="p-2">
+                                        <?php echo $current_loan_repayment->transaction_reference?>
+                                    </td>
+                                    <td class="p-2">
+                                        <?php echo $current_loan_repayment->get_amount_paid()?>
+                                    </td>
+                                    <td class="p-2">
+                                        <?php echo $current_loan_repayment->get_readable_transaction_date()?>
+                                    </td>
+                                </tr>
+                                <?php
+                            }
+                            ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <?php
+                }
+                ?>
 
             </div>
         </div>

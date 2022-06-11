@@ -656,7 +656,8 @@ class LoanPayment {
             $transaction_reference = cleanse_data($transaction_reference, $database_connection);
             $username = cleanse_data($username, $database_connection);
 
-            $query = "SELECT * FROM loan_payments p
+            $query = "SELECT loan_payment_id, p.loan_id, p.amount_paid, transaction_reference, transaction_date 
+                        FROM loan_payments p
                         INNER JOIN loans l ON p.loan_id = l.loan_id
                         INNER JOIN members m ON l.user_id = m.user_id
                         WHERE transaction_reference = '$transaction_reference'";
@@ -691,10 +692,6 @@ class LoanPayment {
         return "&#8358;" . number_format($this->amount_paid, 2);
     }
 
-    public function get_readable_date_paid() {
-        return convert_date_to_readable_form($this->date_paid);
-    }
-
     public function get_readable_transaction_date() {
         return convert_date_to_readable_form($this->transaction_date);
     }
@@ -705,7 +702,8 @@ class LoanPayment {
     public static function get_loan_payments(mysqli $database_connection, string $username = "") : iterable {
         $loan_payments = array();
 
-        $query = "SELECT * FROM loan_payments p
+        $query = "SELECT loan_payment_id, p.loan_id, p.amount_paid, transaction_reference, transaction_date 
+                        FROM loan_payments p
                         INNER JOIN loans l ON p.loan_id = l.loan_id
                         INNER JOIN members m ON l.user_id = m.user_id";
 
@@ -713,7 +711,7 @@ class LoanPayment {
             $query .= " WHERE m.username = '$username'";
         }
 
-        $query .= " ORDER BY date_paid";
+        $query .= " ORDER BY loan_payment_id DESC";
 
         if ($database_connection->connect_error) {
             die("Connection failed: " . $database_connection->connect_error);

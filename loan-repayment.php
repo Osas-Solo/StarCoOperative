@@ -51,9 +51,21 @@ if (!isset($_POST["loan-id"])) {
                                        min="<?php echo $minimum_payment_amount?>"
                                        max="<?php echo $maximum_payment_amount?>">
                                 <div>
-                                    Note that you can only make a repayment in the range of
+                                    Note that you can only make a repayment
+                                    <?php
+                                    if ($minimum_payment_amount == $maximum_payment_amount) {
+                                    ?>
+                                    of <?php echo "&#8358;" . number_format($maximum_payment_amount, 2)?>
+                                    as that is the amount left to be repaid from the loan.
+                                    <?php
+                                    } else {
+                                    ?>
+                                    in the range of
                                     <?php echo "&#8358;" . number_format($minimum_payment_amount, 2)?> -
                                     <?php echo "&#8358;" . number_format($maximum_payment_amount, 2)?>
+                                    <?php
+                                    }
+                                    ?>
                                 </div>
                             </div>
 
@@ -86,7 +98,7 @@ function repay_loan(Member $member, mysqli $database_connection) {
     }
 
     $insert_query = "INSERT INTO loan_payments (loan_id, amount_paid, transaction_reference, transaction_date) VALUES 
-                        ($loan->loan_id, $amount_paid, '$transaction_reference', '$transaction_date'); ";
+                        ($loan->loan_id, $payment_amount, '$transaction_reference', '$transaction_date'); ";
     $update_query = "UPDATE loans SET amount_paid = $amount_paid, status = '$status' WHERE loan_id = $loan->loan_id;";
 
     if ($database_connection->connect_error) {
