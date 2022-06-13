@@ -52,7 +52,7 @@ $loans = Loan::get_loans($database_connection);
                     </div>
                 </div>
 
-                <div class="col-md-9 mx-auto">
+                <div class="col-12 mx-auto">
                     <div class="block text-center">
                         <h2 class="text-center">Investments</h2>
                     </div>
@@ -62,6 +62,7 @@ $loans = Loan::get_loans($database_connection);
                             <thead>
                             <tr>
                                 <th>Transaction Reference</th>
+                                <th>Member</th>
                                 <th>Investment Period</th>
                                 <th>Investment Amount</th>
                             </tr>
@@ -78,6 +79,9 @@ $loans = Loan::get_loans($database_connection);
                                         </a>
                                     </td>
                                     <td class="p-2">
+                                        <?php echo $investments[$i]->member->get_full_name()?>
+                                    </td>
+                                    <td class="p-2">
                                         <?php echo $investments[$i]->get_readable_payment_date()?>
                                     </td>
                                     <td class="p-2">
@@ -90,14 +94,14 @@ $loans = Loan::get_loans($database_connection);
                             </tbody>
                             <tfoot>
                             <tr>
-                                <td colspan="3"><a href="investments.php"><b>View all investments</b></a></td>
+                                <td colspan="4"><a href="investments.php"><b>View all investments</b></a></td>
                             </tr>
                             </tfoot>
                         </table>
                     </div>
                 </div>
 
-                <div class="col-md-9 mx-auto">
+                <div class="col-12 mx-auto">
                     <div class="block text-center">
                         <h2 class="text-center">Loans</h2>
                     </div>
@@ -107,6 +111,7 @@ $loans = Loan::get_loans($database_connection);
                             <thead>
                             <tr>
                                 <th>Loan Amount</th>
+                                <th>Member</th>
                                 <th>Requested Date</th>
                                 <th>Status</th>
                             </tr>
@@ -123,6 +128,9 @@ $loans = Loan::get_loans($database_connection);
                                         </a>
                                     </td>
                                     <td class="p-2">
+                                        <?php echo $loans[$i]->member->get_full_name()?>
+                                    </td>
+                                    <td class="p-2">
                                         <?php echo $loans[$i]->get_readable_date_requested()?>
                                     </td>
                                     <td class="p-2">
@@ -135,7 +143,7 @@ $loans = Loan::get_loans($database_connection);
                             </tbody>
                             <tfoot>
                             <tr>
-                                <td colspan="3"><a href="loans.php"><b>View all loans</b></a></td>
+                                <td colspan="4"><a href="loans.php"><b>View all loans</b></a></td>
                             </tr>
                             </tfoot>
                         </table>

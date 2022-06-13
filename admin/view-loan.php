@@ -38,6 +38,10 @@ if ($loan->is_approved() || $loan->is_paid()) {
                             <table class="table table-striped table-hover table-sm text-center mb-5">
                                 <tbody>
                                 <tr>
+                                    <th class="p-2">Member Name</th>
+                                    <td class="p-2"><?php echo $loan->member->get_full_name()?></td>
+                                </tr>
+                                <tr>
                                     <th class="p-2">Amount Requested</th>
                                     <td class="p-2"><?php echo $loan->get_amount_requested()?></td>
                                 </tr>
