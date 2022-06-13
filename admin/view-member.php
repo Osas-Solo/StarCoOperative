@@ -10,22 +10,22 @@ if (isset($_GET["username"])) {
     $username = $_GET["username"];
 
     $member = new Member($database_connection, $username);
+    $investments = Investment::get_investments($database_connection, "", $username);
+    $loans = Loan::get_loans($database_connection, $username);
+
+    $pending_loans = Loan::filter_loans_by_status($loans, "Pending");
+    $approved_loans = Loan::filter_loans_by_status($loans, "Approved");
+    $rejected_loans = Loan::filter_loans_by_status($loans, "Rejected");
+    $paid_loans = Loan::filter_loans_by_status($loans, "Paid");
 }
 
 
-$investments = Investment::get_investments($database_connection, "", $member->username);
-$loans = Loan::get_loans($database_connection, $member->username);
-
-$pending_loans = Loan::filter_loans_by_status($loans, "Pending");
-$approved_loans = Loan::filter_loans_by_status($loans, "Approved");
-$rejected_loans = Loan::filter_loans_by_status($loans, "Rejected");
-$paid_loans = Loan::filter_loans_by_status($loans, "Paid");
 ?>
 
     <section class="mt-2">
         <div class="container">
             <div class="row">
-                <div class="col-md-6 mx-auto">
+                <div class="col-md-6 mx-auto mb-5">
                     <div class="block text-center">
                         <h2 class="text-center">Member Profile</h2>
                     </div>
