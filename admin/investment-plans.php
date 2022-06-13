@@ -79,6 +79,8 @@ $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
                                 <button type="submit" class="btn btn-main mx-auto d-block">Update</button>
                             </div>
                         </form>
+
+                        <script src="../js/investment-plans-form-updater.js"></script>
                     </div>
                 </div>
 
