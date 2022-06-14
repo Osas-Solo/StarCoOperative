@@ -6,7 +6,7 @@ require_once "dashboard-header.php";
 $investment_plans = InvestmentPlan::get_investment_plans($database_connection);
 
 if (isset($_POST["update"])) {
-    update_cart($customer, $database_connection);
+    update_investment_plans($database_connection);
 }
 ?>
 
@@ -80,7 +80,7 @@ if (isset($_POST["update"])) {
                         </table>
 
                             <div class="col-12 mb-5">
-                                <button type="submit" class="btn btn-main mx-auto d-block">Update</button>
+                                <button type="submit" class="btn btn-main mx-auto d-block" name="update">Update</button>
                             </div>
                         </form>
 
@@ -134,7 +134,7 @@ function update_investment_plans(mysqli $database_connection) {
                                             maximum_monthly_investment_amount = $maximum_monthly_investments[$i],
                                             minimum_loan_entitled = $minimum_loans_entitled[$i],
                                             maximum_loan_entitled = $maximum_loans_entitled[$i],
-                                            loan_interest_rate = $minimum_monthly_investments[$i]
+                                            loan_interest_rate = $loan_interest_rates[$i]
                                             WHERE plan_id = $plan_ids[$i];";
     }
 
