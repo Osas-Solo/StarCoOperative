@@ -53,7 +53,7 @@ Fixed Navigation
             <div class="col-md-12">
                 <nav class="navbar navbar-expand-lg">
                     <a class="navbar-brand" href="index.php">
-                        <h1>Star Co-operative</h1>
+                        <img src="../images/logo.png" height="120" alt="Star Co-operative Logo">
                     </a>
                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="tf-ion-android-menu"></span>
