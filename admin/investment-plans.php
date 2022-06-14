@@ -37,7 +37,7 @@ if (isset($_POST["update"])) {
                                 ?>
                                 <tr>
                                     <td class="p-2">
-                                        <input class="form-control d-none" type="number" name="investment-plans-ids[]"
+                                        <input class="form-control d-none" type="number" name="investment-plan-ids[]"
                                                value="<?php echo $current_investment_plan->plan_id?>">
                                         <input class="form-control" type="text" name="investment-plans[]" readonly
                                                value="<?php echo $current_investment_plan->plan_name?>">
@@ -94,50 +94,67 @@ if (isset($_POST["update"])) {
 
 <?php
 function update_investment_plans(mysqli $database_connection) {
-    $order_insert_query = "";
-    $update_products_query = "";
-    $transaction_reference = $_POST["transaction-reference"];
-    $order_date = date("Y-m-d");
+    $plan_ids = array();
+    $minimum_monthly_investments = array();
+    $maximum_monthly_investments = array();
+    $minimum_loans_entitled = array();
+    $maximum_loans_entitled = array();
+    $loan_interest_rates = array();
 
-    $cart_products = CartProduct::get_cart_products($database_connection, $customer->username);
-
-    foreach ($cart_products as $current_cart_product) {
-        $product_id = $current_cart_product->product->product_id;
-        $quantity = $current_cart_product->quantity;
-        $price = $current_cart_product->product->price;
-
-        $order_insert_query .= "INSERT INTO orders (transaction_reference, product_id, amount_paid, quantity, order_date,
-                                user_id, is_delivered) VALUE 
-                                ('$transaction_reference', '$product_id', $price, $quantity, 
-                                 '$order_date', $customer->user_id, 0);";
-
-        $update_products_query .= "UPDATE products SET quantity_in_stock = quantity_in_stock - $quantity 
-                                    WHERE product_id = '$product_id';";
+    foreach ($_POST["investment-plan-ids"] as $current_investment_plan_id) {
+        array_push($plan_ids, $current_investment_plan_id);
     }
 
-    $cart_removal_query = "DELETE FROM cart_products WHERE user_id = $customer->user_id";
+    foreach ($_POST["minimum-monthly-investment-amounts"] as $current_minimum_monthly_investment_amount) {
+        array_push($minimum_monthly_investments, $current_minimum_monthly_investment_amount);
+    }
+
+    foreach ($_POST["maximum-monthly-investment-amounts"] as $current_maximum_monthly_investment_amount) {
+        array_push($maximum_monthly_investments, $current_maximum_monthly_investment_amount);
+    }
+
+    foreach ($_POST["minimum-loans-entitled"] as $current_minimum_loan_entitled) {
+        array_push($minimum_loans_entitled, $current_minimum_loan_entitled);
+    }
+
+    foreach ($_POST["maximum-loans-entitled"] as $current_maximum_loan_entitled) {
+        array_push($maximum_loans_entitled, $current_maximum_loan_entitled);
+    }
+
+    foreach ($_POST["loan-interest-rates"] as $current_loan_interest_rate) {
+        array_push($loan_interest_rates, $current_loan_interest_rate);
+    }
+
+    $update_investment_plans_query = "";
+    $number_of_investment_plans = 3;
+
+    for ($i = 0; $i < $number_of_investment_plans; $i++) {
+        $update_investment_plans_query .= "UPDATE investment_plans 
+                                            SET minimum_monthly_investment_amount = $minimum_monthly_investments[$i],
+                                            maximum_monthly_investment_amount = $maximum_monthly_investments[$i],
+                                            minimum_loan_entitled = $minimum_loans_entitled[$i],
+                                            maximum_loan_entitled = $maximum_loans_entitled[$i],
+                                            loan_interest_rate = $minimum_monthly_investments[$i]
+                                            WHERE plan_id = $plan_ids[$i];";
+    }
 
     if ($database_connection->connect_error) {
         die("Connection failed: " . $database_connection->connect_error);
     }
 
-    if ($database_connection->multi_query($order_insert_query)) {
-        $database_connection->multi_query($update_products_query);
-        $database_connection->query($cart_removal_query);
-
+    if ($database_connection->multi_query($update_investment_plans_query)) {
         $alert = "<script>
-                    if (confirm('Order made successfully')) {";
-        $order_url = "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]) . "/order.php?transaction-reference=" . $transaction_reference;
-        $alert .=           "window.location.replace('$order_url');
+                    if (confirm('Investment plans updated successfully')) {";
+        $investment_plans_url = "http://" . $_SERVER["HTTP_HOST"] . dirname($_SERVER["PHP_SELF"]) . "/investment-plans.php";
+        $alert .=           "window.location.replace('$investment_plans_url');
                     } else {";
-        $alert .=           "window.location.replace('$order_url');
+        $alert .=           "window.location.replace('$investment_plans_url');
                     }";
         $alert .= "</script>";
 
         echo $alert;
     }
 }
-
 
 $database_connection->close();
 require_once "footer.php";
