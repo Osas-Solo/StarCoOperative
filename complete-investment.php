@@ -10,7 +10,7 @@ if (!isset($_POST["investment-amount"])) {
     header("Location: " . $invest_url);
 }
 
-$student = new Member($database_connection, $_SESSION["username"]);
+$member = new Member($database_connection, $_SESSION["username"]);
 
 if (isset($_POST["make-payment"])) {
     complete_investment($member, $database_connection);
